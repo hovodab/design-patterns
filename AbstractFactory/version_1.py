@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# Author: Hovhannes Dabaghyan
 
 import math
 from abc import ABCMeta, abstractmethod
