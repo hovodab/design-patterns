@@ -13,6 +13,9 @@ class AbstractWing(FancyObject, metaclass=ABCMeta):
     def show(self):
         pass
 
+    def __repr__(self):
+        return self.__class__.__name__
+
 
 class AbstractTail(FancyObject, metaclass=ABCMeta):
     """
@@ -22,6 +25,9 @@ class AbstractTail(FancyObject, metaclass=ABCMeta):
     def show(self):
         pass
 
+    def __repr__(self):
+        return self.__class__.__name__
+
 
 class AbstractWheels(FancyObject, metaclass=ABCMeta):
     """
@@ -30,6 +36,9 @@ class AbstractWheels(FancyObject, metaclass=ABCMeta):
     @abstractmethod
     def show(self):
         pass
+
+    def __repr__(self):
+        return self.__class__.__name__
 
 
 class FighterWing(AbstractWing):
@@ -80,9 +89,9 @@ class PassengerAirplaneWheels(AbstractWheels):
         self.fancy_print("Passenger Airplanes Wheels OO OO O")
 
 
-class AbstractAircraftFactory(metaclass=ABCMeta):
+class AbstractAircraftBuilder(metaclass=ABCMeta):
     """
-    Aircraft factory. Just interfaces.
+    Aircraft builder. Just interfaces.
     """
     @abstractmethod
     def create_wing(self):
@@ -105,11 +114,21 @@ class AbstractAircraftFactory(metaclass=ABCMeta):
         """
         pass
 
+    @abstractmethod
+    def get_aircraft(self):
+        """
+        Get built aircraft.
+        """
+        pass
 
-class FighterFactory(AbstractAircraftFactory):
+
+class FighterBuilder(AbstractAircraftBuilder):
     """
     Fighter aircraft factory.
     """
+    def __init__(self):
+        self.aircraft = dict()
+
     def create_wing(self):
         """
         Create wing for fighter.
@@ -117,7 +136,7 @@ class FighterFactory(AbstractAircraftFactory):
         :rtype: FighterWing
         :return: FighterWing object.
         """
-        return FighterWing()
+        self.aircraft['wing'] = FighterWing()
 
     def create_tail(self):
         """
@@ -126,7 +145,7 @@ class FighterFactory(AbstractAircraftFactory):
         :rtype: FighterTail
         :return: FighterTail object.
         """
-        return FighterTail()
+        self.aircraft['tail'] = FighterTail()
 
     def create_wheels(self):
         """
@@ -135,10 +154,16 @@ class FighterFactory(AbstractAircraftFactory):
         :rtype: FighterWheels
         :return: FighterWheels object.
         """
-        return FighterWheels()
+        self.aircraft['wheels'] = FighterWheels()
+
+    def get_aircraft(self):
+        return self.aircraft
 
 
-class PassengerAirplaneFactory(AbstractAircraftFactory):
+class PassengerAirplaneBuilder(AbstractAircraftBuilder):
+
+    def __init__(self):
+        self.aircraft = dict()
 
     def create_wing(self):
         """
@@ -147,7 +172,7 @@ class PassengerAirplaneFactory(AbstractAircraftFactory):
         :rtype: PassengerAirplaneWing
         :return: PassengerAirplaneWing object.
         """
-        return PassengerAirplaneWing()
+        self.aircraft['wing'] = PassengerAirplaneWing()
 
     def create_tail(self):
         """
@@ -156,7 +181,7 @@ class PassengerAirplaneFactory(AbstractAircraftFactory):
         :rtype: PassengerAirplaneTail
         :return: PassengerAirplaneTail object.
         """
-        return PassengerAirplaneTail()
+        self.aircraft['tail'] = PassengerAirplaneTail()
 
     def create_wheels(self):
         """
@@ -165,25 +190,43 @@ class PassengerAirplaneFactory(AbstractAircraftFactory):
         :rtype: PassengerAirplaneWheels
         :return: PassengerAirplaneWheels object.
         """
-        return PassengerAirplaneWheels()
+        self.aircraft['wheels'] = PassengerAirplaneWheels()
+
+    def get_aircraft(self):
+        return self.aircraft
+
+
+class AircraftBuilderDirector(object):
+    def __init__(self, builder):
+        self.builder = builder
+
+    def construct(self):
+        self.builder.create_wing()
+        self.builder.create_tail()
+        self.builder.create_wheels()
+        return self.builder.get_aircraft()
 
 
 def main():
     print("**************************************************")
     print()
-    aircraft1 = PassengerAirplaneFactory()
-    aircraft2 = FighterFactory()
 
-    aircraft1.create_wing().show()
-    aircraft1.create_tail().show()
-    aircraft1.create_wheels().show()
+    aircraft1 = AircraftBuilderDirector(FighterBuilder()).construct()
+    aircraft2 = AircraftBuilderDirector(PassengerAirplaneBuilder()).construct()
+    print(aircraft1)
+    print(aircraft2)
 
     print()
-    print()
+    print("Aircraft 1:")
+    aircraft1['wing'].show()
+    aircraft1['tail'].show()
+    aircraft1['wheels'].show()
 
-    aircraft2.create_wing().show()
-    aircraft2.create_tail().show()
-    aircraft2.create_wheels().show()
+    print()
+    print("Aircraft 2:")
+    aircraft2['wing'].show()
+    aircraft2['tail'].show()
+    aircraft2['wheels'].show()
 
     print()
     print("**************************************************")
