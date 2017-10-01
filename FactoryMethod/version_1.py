@@ -149,6 +149,9 @@ class Fighter(AbstractAircraft):
 
 
 class PassengerAirplane(AbstractAircraft):
+    """
+    Passenger airplane.
+    """
 
     def create_wing(self):
         """

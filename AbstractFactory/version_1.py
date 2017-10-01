@@ -139,6 +139,9 @@ class FighterFactory(AbstractAircraftFactory):
 
 
 class PassengerAirplaneFactory(AbstractAircraftFactory):
+    """
+    Passenger airplane factory.
+    """
 
     def create_wing(self):
         """

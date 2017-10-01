@@ -161,6 +161,9 @@ class FighterBuilder(AbstractAircraftBuilder):
 
 
 class PassengerAirplaneBuilder(AbstractAircraftBuilder):
+    """
+    Passenger airplane builder.
+    """
 
     def __init__(self):
         self.aircraft = dict()
