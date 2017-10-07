@@ -37,7 +37,7 @@ class Fighter(AbstractAircraft):
         :rtype: FighterWing
         :return: FighterWing object.
         """
-        return Fighter()
+        return copy.deepcopy(self)
 
 
 class PassengerAirplane(AbstractAircraft):
@@ -51,19 +51,19 @@ class PassengerAirplane(AbstractAircraft):
         :rtype: PassengerAirplaneWing
         :return: PassengerAirplaneWing object.
         """
-        return PassengerAirplane()
+        return copy.deepcopy(self)
 
 
 class AircraftEmulator(object):
     """
-    Emulator for aircraft of different types.
+    Emulator creator for aircraft of different types.
     """
 
     def __init__(self, prototype):
-        self._airplane = copy.deepcopy(prototype)
+        self._airplane = prototype
 
-    def emulate(self):
-        self._airplane.show()
+    def create_new_aircraft(self):
+        return self._airplane.clone()
 
 
 def main():
@@ -73,11 +73,18 @@ def main():
     fighter = Fighter()
     passenger_airplane = PassengerAirplane()
 
-    aircraft_emulator1 = AircraftEmulator(fighter)
-    aircraft_emulator2 = AircraftEmulator(passenger_airplane)
+    fighter_emulator1 = AircraftEmulator(fighter)
+    fighter1 = fighter_emulator1.create_new_aircraft()
+    fighter2 = fighter_emulator1.create_new_aircraft()
 
-    aircraft_emulator1.emulate()
-    aircraft_emulator2.emulate()
+    passenger_emulator1 = AircraftEmulator(passenger_airplane)
+    passenger_airplane1 = passenger_emulator1.create_new_aircraft()
+    passenger_airplane2 = passenger_emulator1.create_new_aircraft()
+
+    fighter1.show()
+    fighter2.show()
+    passenger_airplane1.show()
+    passenger_airplane2.show()
 
     print()
     print("**************************************************")
