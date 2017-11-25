@@ -1,90 +1,39 @@
 #!/usr/bin/python3
 # Author: Hovhannes Dabaghyan
 
-import copy
-from abc import ABCMeta, abstractmethod
-from utils.helpers import FancyObject
 
-
-class AbstractAircraft(FancyObject, metaclass=ABCMeta):
+class SingletoneMeta(type):
     """
-    Aircraft creator. Just interfaces.
+    Singletone metaclass.
     """
+    _exemplars = dict()
 
-    emulation = "Emulation of Aircraft."
-
-    @abstractmethod
-    def clone(self):
-        """
-        Create wing for aircraft.
-        """
-        pass
-
-    def show(self):
-        self.fancy_print(self.emulation)
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._exemplars:
+            cls._exemplars[cls] = super().__call__(*args, **kwargs)
+        return cls._exemplars[cls]
 
 
-class Fighter(AbstractAircraft):
+class Singletone(object, metaclass=SingletoneMeta):
     """
-    Fighter aircraft.
+    Singletone class example.
     """
-    emulation = "Emulation of >>Fighter>> aircraft."
-
-    def clone(self):
-        """
-        Create wing for fighter.
-
-        :rtype: FighterWing
-        :return: FighterWing object.
-        """
-        return copy.deepcopy(self)
-
-
-class PassengerAirplane(AbstractAircraft):
-
-    emulation = "Emulation of ==Passenger Airplane=="
-
-    def clone(self):
-        """
-        Create wing for passenger airplane.
-
-        :rtype: PassengerAirplaneWing
-        :return: PassengerAirplaneWing object.
-        """
-        return copy.deepcopy(self)
-
-
-class AircraftEmulator(object):
-    """
-    Emulator creator for aircraft of different types.
-    """
-
-    def __init__(self, prototype):
-        self._airplane = prototype
-
-    def create_new_aircraft(self):
-        return self._airplane.clone()
+    def __init__(self):
+        self.prop = 15
 
 
 def main():
     print("**************************************************")
     print()
-
-    fighter = Fighter()
-    passenger_airplane = PassengerAirplane()
-
-    fighter_emulator1 = AircraftEmulator(fighter)
-    fighter1 = fighter_emulator1.create_new_aircraft()
-    fighter2 = fighter_emulator1.create_new_aircraft()
-
-    passenger_emulator1 = AircraftEmulator(passenger_airplane)
-    passenger_airplane1 = passenger_emulator1.create_new_aircraft()
-    passenger_airplane2 = passenger_emulator1.create_new_aircraft()
-
-    fighter1.show()
-    fighter2.show()
-    passenger_airplane1.show()
-    passenger_airplane2.show()
+    s1 = Singletone()
+    s1.prop = 77
+    print("First object prop: {}".format(s1.prop))
+    print("Creating second object...")
+    s2 = Singletone()
+    print("Second object prop: {}".format(s2.prop))
+    print("Changing second object prop to 1...")
+    s2.prop = 1
+    print("First object prop: {}".format(s1.prop))
 
     print()
     print("**************************************************")
