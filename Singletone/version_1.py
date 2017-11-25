@@ -2,9 +2,9 @@
 # Author: Hovhannes Dabaghyan
 
 
-class SingletoneMeta(type):
+class SingletonMeta(type):
     """
-    Singletone metaclass.
+    Singleton metaclass.
     """
     _exemplars = dict()
 
@@ -14,9 +14,9 @@ class SingletoneMeta(type):
         return cls._exemplars[cls]
 
 
-class Singletone(object, metaclass=SingletoneMeta):
+class Singleton(object, metaclass=SingletonMeta):
     """
-    Singletone class example.
+    Singleton class example.
     """
     def __init__(self):
         self.prop = 15
@@ -25,11 +25,11 @@ class Singletone(object, metaclass=SingletoneMeta):
 def main():
     print("**************************************************")
     print()
-    s1 = Singletone()
+    s1 = Singleton()
     s1.prop = 77
     print("First object prop: {}".format(s1.prop))
     print("Creating second object...")
-    s2 = Singletone()
+    s2 = Singleton()
     print("Second object prop: {}".format(s2.prop))
     print("Changing second object prop to 1...")
     s2.prop = 1
