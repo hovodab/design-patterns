@@ -1,61 +1,78 @@
 #!/usr/bin/python3
 # Author: Hovhannes Dabaghyan
+from abc import ABCMeta, abstractmethod
 
 
-class Sensor(object):
+class Sensor(object, metaclass=ABCMeta):
     """
-    Singleton metaclass.
-    """
-
-    def calculate(self, outcome_adc, max_force, adc_max):
-        """
-        Calculate force in Newtons.
-
-        :type outcome_adc: int
-        :param outcome_adc: Outcome from sensor in ADC format.
-
-        :type max_force: int
-        :param max_force: Maximum force that sensor is able to measure.
-
-        :type adc_max: int
-        :param adc_max: ADC value of the maximum force load of th sensor.
-
-        :rtype: float
-        :return: Calculated force in Newtons.
-        """
-        return outcome_adc * max_force / float(adc_max)
-
-
-class SimplifierSensorAdapter(object):
-    """
-    Very simple adapter-simplifier for calculate method.
-    Uses class parameters as method arguments.
+    Sensor abstraction.
     """
 
-    MAX_FORCE = 1000
-    ADC_MAX = 5000
+    @abstractmethod
+    def form_value(self):
+        raise NotImplementedError()
 
-    def __init__(self):
-        self.sensor = Sensor()
 
-    def calculate(self, outcome_adc):
-        """
-        Calculate force in Newtons for specific sensor.
+class ForceSensor(Sensor):
+    """
+    Force sensor specific class.
+    """
+    FORCE_SENSOR_STAFF = "FORCE SENSOR"
 
-        :type outcome_adc: int
-        :param outcome_adc: Outcome from sensor in ADC format.
+    def form_value(self):
+        return self.FORCE_SENSOR_STAFF
 
-        :rtype: int
-        :return: Calculated force in Newtons.
-        """
-        return self.sensor.calculate(outcome_adc, self.MAX_FORCE, self.ADC_MAX)
+
+class OtherSensor(Sensor):
+    """
+    Some other sensor specific class.
+    """
+    OTHER_SERNSOR_STAFF = "OTHER SENSOR"
+
+    def form_value(self):
+        return self.OTHER_SERNSOR_STAFF
+
+
+class Filter(object, metaclass=ABCMeta):
+    """
+    Signal filter abstraction.
+    """
+
+    def __init__(self, sensor):
+        self._sensor = sensor
+
+    @abstractmethod
+    def calculate(self):
+        raise NotImplementedError()
+
+
+class LowPassFilter(Filter):
+    """
+    Low pass filter.
+    """
+    SOME_LOW_PASS_STAFF = "LOW PASS FILTERED"
+
+    def calculate(self):
+        return self._sensor.form_value() + ' ' + self.SOME_LOW_PASS_STAFF
+
+
+class AverageFilter(Filter):
+    """
+    Average signal filter.
+    """
+    SOME_AVERAGE_STAFF = "AVERAGE FILTERED"
+
+    def calculate(self):
+        return self._sensor.form_value() + ' ' + self.SOME_AVERAGE_STAFF
 
 
 def main():
     print("**************************************************")
     print()
-    s = SimplifierSensorAdapter()
-    print("Load/power on sensor: {} N".format(s.calculate(1000)))
+    print(LowPassFilter(ForceSensor()).calculate())
+    print(AverageFilter(ForceSensor()).calculate())
+    print(LowPassFilter(OtherSensor()).calculate())
+    print(AverageFilter(OtherSensor()).calculate())
     print()
     print("**************************************************")
 
