@@ -3,76 +3,55 @@
 from abc import ABCMeta, abstractmethod
 
 
-class Sensor(object, metaclass=ABCMeta):
+class SubWeb(object, metaclass=ABCMeta):
     """
-    Sensor abstraction.
+    Abstraction for all nodes.
     """
 
     @abstractmethod
-    def form_value(self):
+    def do_something(self):
         raise NotImplementedError()
 
 
-class ForceSensor(Sensor):
+class Element(SubWeb):
     """
-    Force sensor specific class.
-    """
-    FORCE_SENSOR_STAFF = "FORCE SENSOR"
-
-    def form_value(self):
-        return self.FORCE_SENSOR_STAFF
-
-
-class OtherSensor(Sensor):
-    """
-    Some other sensor specific class.
-    """
-    OTHER_SERNSOR_STAFF = "OTHER SENSOR"
-
-    def form_value(self):
-        return self.OTHER_SERNSOR_STAFF
-
-
-class Filter(object, metaclass=ABCMeta):
-    """
-    Signal filter abstraction.
+    Class representing elementary node.
     """
 
-    def __init__(self, sensor):
-        self._sensor = sensor
-
-    @abstractmethod
-    def calculate(self):
-        raise NotImplementedError()
+    def do_something(self, margin):
+        print(margin + "Final element.")
 
 
-class LowPassFilter(Filter):
+class Web(SubWeb):
     """
-    Low pass filter.
+    Represents combined elements.
     """
-    SOME_LOW_PASS_STAFF = "LOW PASS FILTERED"
 
-    def calculate(self):
-        return self._sensor.form_value() + ' ' + self.SOME_LOW_PASS_STAFF
+    def __init__(self):
+        self._elements = []
 
+    def add_element(self, sub_web):
+        self._elements.append(sub_web)
 
-class AverageFilter(Filter):
-    """
-    Average signal filter.
-    """
-    SOME_AVERAGE_STAFF = "AVERAGE FILTERED"
-
-    def calculate(self):
-        return self._sensor.form_value() + ' ' + self.SOME_AVERAGE_STAFF
+    def do_something(self, margin=""):
+        print(margin + "Web Element containing...")
+        for element in self._elements:
+            element.do_something(margin + "  ")
 
 
 def main():
     print("**************************************************")
     print()
-    print(LowPassFilter(ForceSensor()).calculate())
-    print(AverageFilter(ForceSensor()).calculate())
-    print(LowPassFilter(OtherSensor()).calculate())
-    print(AverageFilter(OtherSensor()).calculate())
+    web = Web()
+    element1 = Element()
+    element2 = Element()
+    element3 = Web()
+    element4 = Element()
+    web.add_element(element1)
+    web.add_element(element2)
+    element3.add_element(element4)
+    web.add_element(element3)
+    web.do_something()
     print()
     print("**************************************************")
 
