@@ -32,7 +32,7 @@ class Server(object):
         :type request: Request
         :param request: Request object.
 
-        :rtype: Response
+        :rtype: str
         :return: Response of the processed request.
         """
         for middleware in self._middlewares:
