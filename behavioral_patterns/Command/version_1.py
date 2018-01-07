@@ -1,122 +1,146 @@
 #!/usr/bin/python3
 # Author: Hovhannes Dabaghyan
 
+import time
 from abc import ABCMeta, abstractmethod
 
 
-class Request(object):
+class Command(object, metaclass=ABCMeta):
     """
-    Represents request from the client.
-    """
-
-    def __init__(self, destination, token):
-        # Handler could be an object of a custom class which str representation will give complete response.
-        # But to keep it simple will use just a standard text.
-        self.handler = "404 Not Found"
-        self.destination = destination
-        self.token = token
-
-
-class Server(object):
-    """
-    Server which can handle requests.
+    Interface for all commands.
     """
 
-    def __init__(self, middlewares):
-        self._middlewares = middlewares
-
-    def handle_request(self, request):
+    def execute(self):
         """
-        Receives requests and guess what it does...
+        Entry-point for all commands.
 
-        :type request: Request
-        :param request: Request object.
-
-        :rtype: str
-        :return: Response of the processed request.
-        """
-        for middleware in self._middlewares:
-            request = middleware().process_request(request)
-        return str(request.handler)
-
-
-class Middleware(object, metaclass=ABCMeta):
-
-    @abstractmethod
-    def process_request(self, request):
-        """
-        Process request.
-
-        :type request: Request
-        :param request: Request object.
-
-        :rtype: Request
-        :return: Request after processing.
+        :rtype: void
+        :return: void
         """
         raise NotImplementedError()
 
 
-class CSRFMiddleware(Middleware):
+class DeploySolarPanelsCommand(Command):
     """
-    Check CSRF token to be present and be valid in the request object.
-    """
-
-    def process_request(self, request):
-        """
-        Process request.
-
-        :type request: Request
-        :param request: Request object.
-
-        :rtype: Request
-        :return: Request after processing.
-        """
-        # Check if CSRF exists in the body. Token should be specific in some time, and should be updated,
-        # but for simplicity will use constant value.
-        if request.token != '10101010':
-            raise Exception("Invalid CSRF token.")
-        return request
-
-
-class RouterMiddleware(Middleware):
-    """
-    Route request to the destination handler.
+    Command for deploying solar panels.
     """
 
-    def process_request(self, request):
+    def __init__(self, solar_panels):
+        self._solar_panels = solar_panels
+
+    def execute(self):
         """
-        Process request.
+        Invoke deployment.
 
-        :type request: Request
-        :param request: Request object.
-
-        :rtype: Request
-        :return: Request after processing.
+        :rtype: void
+        :return: void
         """
-        # Send request to the appropriate view.
-        if request.destination == "Users":
-            request.handler = "UsersHandler"
-        elif request.handler == "Cars":
-            request.handler = "CarsHandler"
+        self._solar_panels.deploy()
 
-        return request
+
+class DisconnectRocketStageCommand(Command):
+    """
+    Command for rocket stage disconnection.
+    """
+
+    def __init__(self, rocket_stage):
+        self._rocket_stage = rocket_stage
+
+    def execute(self):
+        """
+        Invoke stage disconnect.
+
+        :rtype: void
+        :return: void
+        """
+        self._rocket_stage.disconnect(1)
+
+
+class StartEngineCommand(Command):
+    """
+    Command for engine start.
+    """
+
+    def __init__(self, engine):
+        self._engine = engine
+
+    def execute(self):
+        """
+        Invoke engine start.
+
+        :rtype: void
+        :return: void
+        """
+        self._engine.start("Per aspera ad astra.")
+
+
+class SolarPanels(object):
+    """
+    Receiver class representing rocket solar panels.
+
+        ###
+         ###
+      \___###_____
+    < )___________< ~~..
+     /     ###
+            ###
+             ###
+    """
+
+    def deploy(self):
+        print("Solar panels: Solar panels deployed...")
+        print()
+
+
+class RocketStage(object):
+    """
+    Receiver class representing rocket stage.
+    """
+    def disconnect(self, timeout):
+        time.sleep(timeout)
+        print("RocketStage: Rocket stage disconnected...")
+        print()
+
+
+class Engine(object):
+    """
+    Receiver class representing rocket engine.
+    """
+    @staticmethod
+    def start(slogan):
+        print("Engine: Engine started...")
+        print("Engine: " + slogan)
+        print()
+
+
+class Satellite(object):
+    """
+    Invoker class sending commands to all parts.
+    """
+
+    def __init__(self):
+        self._engine = Engine()
+        self._rocket_stage = RocketStage()
+        self._solar_panels = SolarPanels()
+
+    def deploy(self):
+        """
+        Deploy satellite to orbit.
+
+        :rtype: void
+        :return: void
+        """
+        StartEngineCommand(self._engine).execute()
+        DisconnectRocketStageCommand(self._rocket_stage).execute()
+        DeploySolarPanelsCommand(self._solar_panels).execute()
 
 
 def main():
     print("**************************************************")
     print()
 
-    server = Server([CSRFMiddleware])
-    print("Handling request for `Users` with CSRF middleware only: ",
-          server.handle_request(Request("Users", "10101010")))
-    print()
-    server = Server([CSRFMiddleware, RouterMiddleware])
-    print("Handling request for `Users` with CSRF and Router middlewares: ",
-          server.handle_request(Request("Users", "10101010")))
-
-    print("Both middlewares and wrong token: ",
-          server.handle_request(Request("Users", "andromeda")))
-    # server = Server([CSRFMiddleware, RouterMiddleware])
+    satellite = Satellite()
+    satellite.deploy()
 
     print()
     print("**************************************************")
