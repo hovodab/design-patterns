@@ -10,6 +10,7 @@ class Command(object, metaclass=ABCMeta):
     Interface for all commands.
     """
 
+    @abstractmethod
     def execute(self):
         """
         Entry-point for all commands.
