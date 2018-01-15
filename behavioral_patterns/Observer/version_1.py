@@ -1,99 +1,103 @@
 #!/usr/bin/python3
 # Author: Hovhannes Dabaghyan
 
-from weakref import proxy
-from abc import ABCMeta, abstractmethod
 
-
-class Memento(object):
+class Observer(object):
     """
-    Memento object.
+    Observer interface.
     """
 
-    def __init__(self, position):
-        self._position = position
-
-    def get_position(self):
+    def changed_event(self, observable):
         """
-        Get saved state.
+        Get event about observable subject change.
 
-        :rtype: int
-        :return: Saved position.
-        """
-        return self._position
-
-    def __str__(self):
-        return "Current position: {}".format(self._position)
-
-
-class BrakeActuator(object):
-    """
-    Represents brake actuator. Is Originator.
-     ___________
-    |           =  Retracted position.
-    |__________|
-     ___________
-    |           ====  Extracted position.
-    |__________|
-    """
-    MIN_POSITION = 0
-    MAX_POSITION = 800
-
-    def __init__(self):
-        # Brake is retracted.
-        self._position = 0
-
-    def drive_steps(self, steps):
-        """
-        Drive brake actuator with given steps.
-
-        :type steps: int
-        :param steps: How much drive the brake. Could be negative in that case will be retracted.
+        :type observable: Observable
+        :param observable: Observable object.
 
         :rtype: void
         :return: void
         """
-        self._position += steps
-        if self._position > 800:
-            self._position = 800
-        if self._position < 0:
-            self._position = 0
+        print("Observer object is notified about observable change: {}".format(observable.get_state()))
+
+
+class Observable(object):
+    """
+    Observable interface.
+    """
+
+    def __init__(self):
+        self._state = None
+        self._observers = list()
+
+    def register_observer(self, observer):
+        """
+        Register observer for observable object.
+
+        :type observer: Observer
+        :param observer: Observer object which should be registered in order to get notifications.
+
+        :rtype: void
+        :return: void
+        """
+        self._observers.append(observer)
+
+    def remove_observer(self, observer):
+        """
+        Remove observer from list of observer objects.
+
+        :type observer: Observer
+        :param observer: Observer object which should be removed in order to not get notifications.
+
+        :rtype: void
+        :return: void
+        """
+        self._observers.remove(observer)
+
+    def notify(self):
+        """
+        Notify all observers about change.
+
+        :rtype: void
+        :return: void
+        """
+        for observer in self._observers:
+            observer.changed_event(self)
+
+    def set_state(self, state):
+        """
+        Set state of the observable object.
+
+        :type state: str
+        :param state: Some state.
+
+        :rtype: void
+        :return: void
+        """
+        self._state = state
+        self.notify()
 
     def get_state(self):
         """
-        Get current state of the brake actuator.
+        Get current state of the observable object.
 
-        :rtype: Memento
-        :return: Return Memento object holding current state.
+        :rtype: str|NoneType
+        :return: Current state of object.
         """
-        return Memento(self._position)
-
-    def set_state(self, memento):
-        """
-        Set to given state.
-
-        :type memento: Memento
-        :param memento: Set state to given Memento object.
-
-        :rtype: void
-        :return: void
-        """
-        self._position = memento.get_position()
+        return self._state
 
 
 def main():
     print("**************************************************")
     print()
 
-    # This part takes responsibilities of Caretaker.
-    brake_actuator = BrakeActuator()
-    brake_actuator.drive_steps(10)
-    brake_actuator.drive_steps(-20)
-    state_1 = brake_actuator.get_state()
-    brake_actuator.drive_steps(8000)
-    print(brake_actuator.get_state())
-    brake_actuator.set_state(state_1)
-    print(brake_actuator.get_state())
+    observable = Observable()
+    observer1 = Observer()
+    observer2 = Observer()
+    observable.register_observer(observer1)
+    observable.register_observer(observer2)
+    observable.set_state("Some change...")
+    observable.remove_observer(observer1)
+    observable.set_state("Some other change...")
 
 
     print()
