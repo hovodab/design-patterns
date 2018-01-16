@@ -63,6 +63,7 @@ class ISystemState(SystemState):
     """
     Imperial unit system state.
     """
+
     def get_size(self):
         """
         Get size in yards.
